@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Arezo Brand</title>
+  <style>
+    /* Reset */
+    *{box-sizing:border-box;font-family:Tahoma, Arial, sans-serif}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#dbeeff 0%,#ffffff 60%);color:#0b2b4a}
+    a{color:inherit;text-decoration:none}
+    header{background:rgba(11,43,74,0.06);backdrop-filter:blur(4px);padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#6013c5,#199786);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px}
+    .brand h1{margin:0;font-size:20px}
+    .contact{font-size:13px;text-align:left}
+
+    main{display:grid;grid-template-columns:1fr 360px;gap:20px;padding:20px}
+    @media(max-width:1000px){main{grid-template-columns:1fr} .sidebar{order:2}}
+
+    /* Products */
+    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+    .card{background:rgb(46, 87, 63);border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(11,43,74,0.06);display:flex;flex-direction:column;gap:8px}
+    .card img{width:100%;height:160px;object-fit:cover;border-radius:8px;background:#e6f0ff}
+    .price{font-weight:700;color:#7e1f34}
+    .muted{color:#476382;font-size:13px}
+    button{cursor:pointer;border:0;padding:8px 12px;border-radius:8px}
+    .btn-primary{background:#cc0f48;color:white}
+    .btn-light{background:transparent;border:1px solid #cfe3ff}
+
+    /* Sidebar */
+    .sidebar{position:sticky;top:18px;background:transparent}
+    .box{background:rgba(218, 7, 7, 0.9);padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(11,43,74,0.06);margin-bottom:12px}
+
+    /* Cart */
+    .cart-items{display:flex;flex-direction:column;gap:8px}
+    .cart-row{display:flex;gap:8px;align-items:center}
+    .cart-row img{width:56px;height:56px;object-fit:cover;border-radius:6px}
+
+    /* Panels */
+    .tabs{display:flex;gap:8px;margin-bottom:8px}
+    .tab{padding:8px 10px;border-radius:10px;background:rgba(11,43,74,0.06);cursor:pointer}
+    .tab.active{background:#ecb10f;color:rgb(76, 97, 86)}
+
+    footer{padding:20px;text-align:center;font-size:14px;color:#27455f}
+
+    /* Admin modal */
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);z-index:9999}
+    .modal-card{width:720px;max-width:98%;background:white;padding:16px;border-radius:12px}
+
+    /* RTL form styles */
+    label{display:block;margin-bottom:6px;font-size:13px}
+    input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #cbd8ea;margin-bottom:8px}
+    .small{font-size:12px;color:#b6565e}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">Arezoo</div>
+      <div>
+        <h1>Arezoo-Brand</h1>
+        <div class="muted">لباس‌های افغانی سنتی و مدرن — مزارشریف، افغانستان</div>
+      </div>
+    </div>
+    <div class="contact">
+      <div>تلفن/واتساپ: <strong> +93782667669</strong></div>
+      <div class="big">به صفحه شخصی من خوش آمدید</div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="box">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h2 style="margin:6px 0">محصولات ویژه</h2>
+            <div class="muted">چند نمونه از لباس‌های افغانی با قیمت به افغانی</div>
+          </div>
+          <div>
+            <button class="btn-primary" onclick="showAdmin()">پنل مدیریت</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="products" id="products"></div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="box">
+        <h3>سبد خرید</h3>
+        <div id="cart" class="cart-items"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;align-items:center">
+          <div class="muted">جمع: <span id="cartTotal">0</span> افغانی</div>
+          <button class="btn-primary" onclick="checkout()">پرداخت</button>
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="tabs">
+          <div class="tab active" data-panel="order" onclick="switchPanel(event)">ثبت سفارش</div>
+          <div class="tab" data-panel="raffle" onclick="switchPanel(event)">قرعه‌کشی ماهوار</div>
+          <div class="tab" data-panel="register" onclick="switchPanel(event)">ثبت‌نام مشتری</div>
+        </div>
+
+        <div id="panel-order">
+          <form id="orderForm" onsubmit="saveOrder(event)">
+            <label>نام مشتری</label>
+            <input required id="custName" placeholder="مثلاً: فاطمه">
+            <label>شماره تماس</label>
+            <input required id="custPhone" placeholder="0794xxxxxxx">
+            <label>آدرس</label>
+            <input id="custAddress" placeholder="مزارشریف، خانه...">
+            <label>توضیحات سفارش</label>
+            <textarea id="orderNotes" rows="3"></textarea>
+            <div style="display:flex;gap:8px">
+              <button class="btn-primary" type="submit">ثبت سفارش</button>
+              <button type="button" class="btn-light" onclick="clearCart()">پاک کردن سبد</button>
+            </div>
+            <div class="small">سفارش‌ها در مرورگر ذخیره می‌شوند (محلی). برای ذخیره دائمی، از نسخه PHP/MySQL استفاده کنید.</div>
+          </form>
+        </div>
+
+        <div id="panel-raffle" style="display:none">
+          <h4>قرعه‌کشی ماهوار</h4>
+          <div class="small">ثبت‌نام برای شرکت در قرعه‌کشی ماه جاری</div>
+          <label>نام و شماره برای قرعه‌کشی</label>
+          <input id="raffleName" placeholder="نام">
+          <input id="rafflePhone" placeholder="شماره">
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <button class="btn-primary" onclick="enterRaffle()">ثبت‌نام</button>
+            <button class="btn-light" onclick="drawRaffle()">قرعه‌کشی و انتخاب برنده</button>
+          </div>
+          <div id="raffleList" style="margin-top:8px;max-height:160px;overflow:auto"></div>
+        </div>
+
+        <div id="panel-register" style="display:none">
+          <h4>ثبت‌نام مشتری</h4>
+          <label>نام</label>
+          <input id="regName">
+          <label>شماره</label>
+          <input id="regPhone">
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <button class="btn-primary" onclick="registerCustomer()">ثبت‌نام</button>
+          </div>
+          <div id="customersList" style="margin-top:8px;max-height:160px;overflow:auto"></div>
+        </div>
+
+      </div>
+
+      <div class="box">
+        <h4>اطلاعات</h4>
+        <div class="muted">آدرس: مزارشریف، افغانستان</div>
+        <div class="muted">سبک: دارک مود (نمایش قابل تنظیم)</div>
+        <div style="margin-top:8px">
+          <button class="btn-light" onclick="toggleDark()">تغییر دارک/لایت</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    © برند آرزو — استاد خیاطی‌های مدرن — تلفن/واتساپ: 0794165515
+  </footer>
+
+  <!-- Admin Modal (hidden) -->
+  <div id="adminModal" class="modal" style="display:none">
+    <div class="modal-card">
+      <h3>پنل مدیریت</h3>
+      <div style="display:flex;gap:12px">
+        <div style="flex:1">
+          <label>رمز عبور مدیریت</label>
+          <input id="adminPass" type="password" placeholder="رمز را وارد کنید">
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn-primary" onclick="loginAdmin()">ورود</button>
+            <button class="btn-light" onclick="closeAdmin()">خروج</button>
+          </div>
+          <div class="small" style="margin-top:10px">رمز پیش‌فرض: <strong>admin123</strong> (برای نسخه واقعی، حتماً سرور و دیتابیس امن بسازید)</div>
+        </div>
+        <div style="width:360px">
+          <h4>دستورات سریع</h4>
+          <div class="small">مشاهده سفارش‌ها، مشتریان ثبت‌شده، مدیریت قرعه‌کشی و انتخاب برنده</div>
+        </div>
+      </div>
+      <hr>
+      <div id="adminPanelContent" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="tab active" onclick="showOrders()">سفارش‌ها</button>
+          <button class="tab" onclick="showCustomers()">مشتریان</button>
+          <button class="tab" onclick="showRaffles()">قرعه‌کشی</button>
+        </div>
+        <div id="adminArea"></div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="btn-light" onclick="logoutAdmin()">خروج از پنل</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Data: sample products ---
+    const sampleProducts = [
+      {id:1,name:'لباس افغانی سنتی - زنانه',price:1200,desc:'دوخت سنتی با پارچه باکیفیت',img:'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="%23e6f0ff"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="24" fill="%230b3b66">لباس افغانی سنتی</text></svg>'},
+      {id:2,name:'لباس افغانی مدرن - مردانه',price:1400,desc:'استایل مدرن و راحت',img:'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="%23e6f0ff"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="24" fill="%230b3b66">لباس افغانی مدرن</text></svg>'},
+      {id:3,name:'حجاب افغانی کلاسیک',price:800,desc:'پارچه سبک و شیک',img:'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="%23e6f0ff"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="24" fill="%230b3b66">حجاب افغانی</text></svg>'},
+      {id:4,name:'مانتو سنتی-دوخت سفارشی',price:1500,desc:'دوخت سفارشی با اندازه‌گیری دقیق',img:'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="%23e6f0ff"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="24" fill="%230b3b66">مانتو دوخت سفارشی</text></svg>'}
+    ];
+
+    // --- Local Storage keys ---
+    const LS_CART = 'arzoo_cart_v1';
+    const LS_ORDERS = 'arzoo_orders_v1';
+    const LS_CUSTOMERS = 'arzoo_customers_v1';
+    const LS_RAFFLE = 'arzoo_raffle_v1';
+    const LS_WINNERS = 'arzoo_raffle_winners_v1';
+
+    // --- Load initial UI ---
+    const productsEl = document.getElementById('products');
+    const cartEl = document.getElementById('cart');
+    const cartTotalEl = document.getElementById('cartTotal');
+
+    let cart = JSON.parse(localStorage.getItem(LS_CART) || '[]');
+
+    function renderProducts(){
+      productsEl.innerHTML = '';
+      sampleProducts.forEach(p=>{
+        const div = document.createElement('div');div.className='card';
+        div.innerHTML = `
+          <img src="${p.img}" alt="<img alt="15 مدل لباس افغانی زنانه شیک؛ ترکیبی از سنت و مدرنیته" id="dimg_WMyuaKCYM566wPAP_5G9-Qs_1" src="data:image/jpeg;base64,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" data-csiid="WMyuaKCYM566wPAP_5G9-Qs_1" data-atf="1">">
+         
+              <strong>${p.name}</strong>
+              <div class="price">${p.price} افغانی</div>
+            </div>
+            <div class="muted">${p.desc}</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn-primary" onclick="addToCart(${p.id})">افزودن به سبد</button>
+            <button class="btn-light" onclick="quickBuy(${p.id})">خرید سریع</button>
+          </div>
+        `;
+        productsEl.appendChild(div);
+      });
+    }
+
+    function saveCart(){localStorage.setItem(LS_CART,JSON.stringify(cart));renderCart();}
+    function renderCart(){
+      cartEl.innerHTML = '';
+      let total = 0;
+      if(cart.length===0){cartEl.innerHTML='<div class="small">سبد خرید خالی است</div>'}
+      cart.forEach(item=>{
+        total += item.price*item.qty;
+        const row = document.createElement('div');row.className='cart-row';
+        row.innerHTML = `<img src="${item.img}"><div style="flex:1"><div><strong>${item.name}</strong></div><div class="small">قیمت: ${item.price} — تعداد: <input type=number min=1 value="${item.qty}" style="width:64px" onchange="updateQty(${item.id},this.value)"></div></div><div><button class=btn-light onclick="removeFromCart(${item.id})">حذف</button></div>`;
+        cartEl.appendChild(row);
+      });
+      cartTotalEl.textContent = total;
+    }
+
+    function addToCart(id){
+      const p = sampleProducts.find(x=>x.id===id);
+      const found = cart.find(x=>x.id===id);
+      if(found){found.qty++;}else{cart.push({id:p.id,name:p.name,price:p.price,qty:1,img:p.img});}
+      saveCart();
+      alert('محصول به سبد اضافه شد');
+    }
+    function updateQty(id,q){const it=cart.find(x=>x.id===id);if(it){it.qty=parseInt(q)||1;saveCart();}}
+    function removeFromCart(id){cart=cart.filter(x=>x.id!==id);saveCart();}
+    function clearCart(){cart=[];saveCart();}
+    function quickBuy(id){addToCart(id);checkout();}
+
+    // --- Orders ---
+    function saveOrder(e){
+      if(e) e.preventDefault();
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+      const notes = document.getElementById('orderNotes').value.trim();
+      if(cart.length===0){alert('سبد خرید خالی است');return}
+      const orders = JSON.parse(localStorage.getItem(LS_ORDERS) || '[]');
+      const order = {id:Date.now(),name,phone,address,notes,items:cart,total:cart.reduce((s,i)=>s+i.price*i.qty,0),date:new Date().toISOString(),status:'جدید'};
+      orders.push(order);localStorage.setItem(LS_ORDERS,JSON.stringify(orders));
+      // also register as customer
+      registerCustomerLocal(name,phone);
+      cart = [];saveCart();
+      document.getElementById('orderForm').reset();
+      alert('سفارش شما ثبت شد. شماره سفارش: ' + order.id);
+    }
+
+    // --- Customers ---
+    function registerCustomer(){
+      const name = document.getElementById('regName').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      if(!name || !phone){alert('نام و شماره را وارد کنید');return}
+      registerCustomerLocal(name,phone);
+      document.getElementById('regName').value='';document.getElementById('regPhone').value='';
+      renderCustomers();
+      alert('مشتری ثبت شد');
+    }
+    function registerCustomerLocal(name,phone){
+      const list = JSON.parse(localStorage.getItem(LS_CUSTOMERS) || '[]');
+      if(!list.find(c=>c.phone===phone)){
+        list.push({id:Date.now(),name,phone,registeredAt:new Date().toISOString()});
+        localStorage.setItem(LS_CUSTOMERS,JSON.stringify(list));
+      }
+    }
+    function renderCustomers(){
+      const list = JSON.parse(localStorage.getItem(LS_CUSTOMERS) || '[]');
+      const el = document.getElementById('customersList');el.innerHTML='';
+      if(list.length===0){el.innerHTML='<div class=small>هیچ مشتری ثبت‌شده‌ای نیست</div>';return}
+      list.forEach(c=>{const d=document.createElement('div');d.className='small';d.textContent=`${c.name} — ${c.phone}`;el.appendChild(d);});
+    }
+
+    // --- Raffle ---
+    function enterRaffle(){
+      const name = document.getElementById('raffleName').value.trim();
+      const phone = document.getElementById('rafflePhone').value.trim();
+      if(!name||!phone){alert('نام و شماره را وارد کنید');return}
+      const list = JSON.parse(localStorage.getItem(LS_RAFFLE) || '[]');
+      if(list.find(x=>x.phone===phone)){alert('قبلاً ثبت‌نام کرده‌اید');return}
+      list.push({id:Date.now(),name,phone,registeredAt:new Date().toISOString()});
+      localStorage.setItem(LS_RAFFLE,JSON.stringify(list));
+      document.getElementById('raffleName').value='';document.getElementById('rafflePhone').value='';
+      renderRaffle();
+    }
+    function renderRaffle(){
+      const list = JSON.parse(localStorage.getItem(LS_RAFFLE) || '[]');
+      const el = document.getElementById('raffleList');el.innerHTML='';
+      if(list.length===0){el.innerHTML='<div class=small>هنوز شرکت‌کننده‌ای ثبت نشده</div>';return}
+      list.forEach((r,i)=>{const d=document.createElement('div');d.className='small';d.textContent=`${i+1}. ${r.name} — ${r.phone}`;el.appendChild(d);});
+    }
+    function drawRaffle(){
+      const list = JSON.parse(localStorage.getItem(LS_RAFFLE) || '[]');
+      if(list.length===0){alert('شرکت‌کننده‌ای وجود ندارد');return}
+      const idx = Math.floor(Math.random()*list.length);
+      const winner = list[idx];
+      const winners = JSON.parse(localStorage.getItem(LS_WINNERS) || '[]');
+      winners.push({...winner,drawAt:new Date().toISOString()});
+      localStorage.setItem(LS_WINNERS,JSON.stringify(winners));
+      alert('برنده: ' + winner.name + ' — ' + winner.phone);
+      // clear raffle for next month
+      localStorage.removeItem(LS_RAFFLE);
+      renderRaffle();
+    }
+
+    // --- Admin ---
+    function showAdmin(){document.getElementById('adminModal').style.display='flex';}
+    function closeAdmin(){document.getElementById('adminModal').style.display='none';document.getElementById('adminPanelContent').style.display='none';}
+    function loginAdmin(){const pass=document.getElementById('adminPass').value; if(pass==='admin123'){document.getElementById('adminPanelContent').style.display='block';document.getElementById('adminPass').value='';showOrders();}else{alert('رمز اشتباه است')}}
+    function logoutAdmin(){document.getElementById('adminPanelContent').style.display='none';alert('خروج از پنل مدیریت')}
+
+    function showOrders(){
+      const el=document.getElementById('adminArea');
+      const orders = JSON.parse(localStorage.getItem(LS_ORDERS) || '[]');
+      if(orders.length===0){el.innerHTML='<div class=small>سفارشی ثبت نشده است</div>';return}
+      let html = '<div style="max-height:400px;overflow:auto">';
+      orders.slice().reverse().forEach(o=>{
+        html += `<div style="border-bottom:1px solid #eef6ff;padding:8px;margin-bottom:6px"><div><strong>سفارش ${o.id}</strong> — ${new Date(o.date).toLocaleString('fa-IR')}</div><div class=small>نام: ${o.name} — ${o.phone} — آدرس: ${o.address || '-'} — وضعیت: ${o.status}</div><div style="margin-top:6px">`;
+        o.items.forEach(it=>{html += `<div class=small>${it.name} — ${it.qty} × ${it.price}</div>`});
+        html += `</div><div style="margin-top:6px"><button class=btn-primary onclick="markShipped(${o.id})">ارسال شد</button> <button class=btn-light onclick="deleteOrder(${o.id})">حذف</button></div></div>`;
+      });
+      html += '</div>';
+      el.innerHTML = html;
+    }
+    function markShipped(id){const orders=JSON.parse(localStorage.getItem(LS_ORDERS)||'[]');const o=orders.find(x=>x.id===id);if(o){o.status='ارسال شد';localStorage.setItem(LS_ORDERS,JSON.stringify(orders));showOrders();alert('وضعیت به ارسال شد تغییر یافت')}}
+    function deleteOrder(id){let orders=JSON.parse(localStorage.getItem(LS_ORDERS)||'[]');orders=orders.filter(x=>x.id!==id);localStorage.setItem(LS_ORDERS,JSON.stringify(orders));showOrders();}
+
+    function showCustomers(){const el=document.getElementById('adminArea');const list=JSON.parse(localStorage.getItem(LS_CUSTOMERS)||'[]');if(list.length===0){el.innerHTML='<div class=small>مشتری‌ای ثبت نشده</div>';return}let html='<div style="max-height:400px;overflow:auto">';list.forEach(c=>{html+=`<div class=small style="border-bottom:1px solid #eef6ff;padding:6px">${c.name} — ${c.phone}</div>`});html+='</div>';el.innerHTML=html}
+
+    function showRaffles(){const el=document.getElementById('adminArea');const winners=JSON.parse(localStorage.getItem(LS_WINNERS)||'[]');let html='';if(winners.length===0){html='<div class=small> هنوز برنده‌ای انتخاب نشده</div>'}else{html+='<div style="max-height:360px;overflow:auto">';winners.slice().reverse().forEach(w=>{html+=`<div class=small style="border-bottom:1px solid #eef6ff;padding:8px">${w.name} — ${w.phone} — انتخاب‌شده در: ${new Date(w.drawAt).toLocaleString('fa-IR')}</div>`});html+='</div>'}el.innerHTML=html}
+
+    // --- Helpers ---
+    function switchPanel(e){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));e.target.classList.add('active');const p=e.target.dataset.panel;document.getElementById('panel-order').style.display = p==='order'?'block':'none';document.getElementById('panel-raffle').style.display = p==='raffle'?'block':'none';document.getElementById('panel-register').style.display = p==='register'?'block':'none';}
+
+    function checkout(){if(cart.length===0){alert('سبد خالی است');return}document.querySelector('.tab[data-panel="order"]').click();alert('برای تکمیل خرید لطفاً فرم ثبت سفارش را تکمیل کنید');}
+
+    // Dark mode toggle
+    function toggleDark(){document.body.classList.toggle('dark');if(document.body.classList.contains('dark')){document.documentElement.style.setProperty('--bg','#02142a');document.body.style.background='linear-gradient(180deg,#091226 0%,#0b1b2b 60%)';document.body.style.color='white'}else{document.body.style.background='linear-gradient(180deg,#dbeeff 0%,#ffffff 60%)';document.body.style.color='#0b2b4a'}}
+
+    // Admin utilities
+    function deleteOrderFromAdmin(id){deleteOrder(id);}
+
+    function showOrdersList(){showOrders()}
+
+    // Welcome message
+    function welcome(){
+      setTimeout(()=>{
+        alert('خوش آمدید! به برند آرزو خوش آمدید — برای سفارش با 0794165515 تماس بگیرید یا از طریق واتساپ پیام دهید.');
+      },600);
+    }
+
+    // Initialize
+    renderProducts();renderCart();renderCustomers();renderRaffle();welcome();
+
+    // Expose to window for buttons used in HTML
+    window.addToCart = addToCart;window.quickBuy = quickBuy;window.updateQty = updateQty;window.removeFromCart = removeFromCart;
+    window.clearCart = clearCart;window.saveOrder = saveOrder;window.registerCustomer = registerCustomer;window.enterRaffle = enterRaffle;window.drawRaffle = drawRaffle;
+    window.showAdmin = showAdmin;window.closeAdmin = closeAdmin;window.loginAdmin = loginAdmin;window.logoutAdmin = logoutAdmin;window.showOrders = showOrders;window.showCustomers = showCustomers;window.showRaffles = showRaffles;window.markShipped = markShipped;window.deleteOrder = deleteOrder;
+  </script>
+</body>
+</html>
